@@ -1,16 +1,9 @@
 import React, { useContext } from "react";
 import { SocketContext } from "../SocketContext.js";
 
-const VideoPlayer = () => {
-	const {
-		name,
-		callAccepted,
-		// myVideo,
-		userVideo,
-		callEnded,
-		stream,
-		call,
-	} = useContext(SocketContext);
+const AudioPlayer = () => {
+	const { name, callAccepted, myAudio, userAudio, callEnded, stream, call } =
+		useContext(SocketContext);
 
 	return (
 		<div className="grid">
@@ -18,9 +11,7 @@ const VideoPlayer = () => {
 				<div className="paper">
 					<div className="grid">
 						<div className="typography">{name || "Name"}</div>
-						{/* <video playsInline muted ref={myVideo} autoPlay/> */}
-						{/* <audio controls autoPlay ref={myVideo}/> */}
-						{/* {console.log(myVideo)} */}
+						<audio controls autoPlay ref={myAudio} />
 					</div>
 				</div>
 			)}
@@ -28,8 +19,7 @@ const VideoPlayer = () => {
 				<div className="paper">
 					<div className="grid">
 						<div className="typography">{call.name || "Name"}</div>
-						{/* <video playsInline ref={userVideo} autoPlay/> */}
-						<audio controls autoPlay ref={userVideo}></audio>
+						<audio controls autoPlay ref={userAudio}></audio>
 					</div>
 				</div>
 			)}
@@ -37,4 +27,4 @@ const VideoPlayer = () => {
 	);
 };
 
-export default VideoPlayer;
+export default AudioPlayer;

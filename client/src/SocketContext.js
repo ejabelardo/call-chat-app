@@ -8,7 +8,6 @@ import busy from "../src/assets/busy01.mp3";
 const SocketContext = createContext();
 
 const socket = io("http://localhost:5000");
-// const socket = io('');
 
 const ContextProvider = ({ children }) => {
 	const [callAccepted, setCallAccepted] = useState(false);
@@ -20,10 +19,10 @@ const ContextProvider = ({ children }) => {
 	//test
 	const [audio, setAudio] = useState(ringtone);
 
-	const myVideo = useRef();
-	const userVideo = useRef();
+	const myAudio = useRef();
+	const userAudio = useRef();
 	const connectionRef = useRef();
-	//test
+
 	const audioRef = useRef();
 
 	useEffect(() => {
@@ -32,33 +31,33 @@ const ContextProvider = ({ children }) => {
 			.then((currentStream) => {
 				setStream(currentStream);
 
-				// myVideo.current.srcObject = currentStream;
-				// console.log(myVideo.current);
+				// myAudio.current.srcObject = currentStream;
 			});
 
 		socket.on("me", (id) => setMe(id));
 
 		socket.on("callUser", ({ from, name: callerName, signal }) => {
 			setCall({ isReceivingCall: true, from, name: callerName, signal });
+
 			setAudio(ringtone);
 			audioRef.current.play();
 		});
-	}, []);
+	}, [callEnded]);
 
 	const answerCall = () => {
 		setCallAccepted(true);
+		setCallEnded(false);
 
 		const peer = new Peer({ initiator: false, trickle: false, stream });
+
 		audioRef.current.pause();
 
 		peer.on("signal", (data) => {
 			socket.emit("answerCall", { signal: data, to: call.from });
-			// console.log('answerCall signal');
 		});
 
 		peer.on("stream", (currentStream) => {
-			userVideo.current.srcObject = currentStream;
-			// console.log('answerCall stream');
+			userAudio.current.srcObject = currentStream;
 		});
 
 		peer.signal(call.signal);
@@ -77,20 +76,18 @@ const ContextProvider = ({ children }) => {
 				from: me,
 				name,
 			});
+
 			audioRef.current.play();
-			// console.log('callUser signal');
 		});
 
 		peer.on("stream", (currentStream) => {
-			userVideo.current.srcObject = currentStream;
-			// console.log('callUser stream');
+			userAudio.current.srcObject = currentStream;
 		});
 
 		socket.on("callAccepted", (signal) => {
 			audioRef.current.pause();
 			setCallAccepted(true);
 
-			// console.log('callAccepted');
 			peer.signal(signal);
 		});
 
@@ -98,11 +95,23 @@ const ContextProvider = ({ children }) => {
 	};
 
 	const leaveCall = () => {
+		// setCallEnded(true);
+		setAudio(busy);
+		audioRef.current.play();
+
+		socket.on("callEnded", () => {
+			console.log("call ended...");
+		});
+
+		connectionRef.current = null;
+
+		socket.disconnect();
+		// window.location.reload();
+		setStream(null);
+		setMe("");
+		setCall("");
+		setCallAccepted(false);
 		setCallEnded(true);
-
-		connectionRef.current.destroy();
-
-		window.location.reload();
 	};
 
 	return (
@@ -112,8 +121,8 @@ const ContextProvider = ({ children }) => {
 				audioRef,
 				call,
 				callAccepted,
-				myVideo,
-				userVideo,
+				myAudio,
+				userAudio,
 				stream,
 				name,
 				setName,

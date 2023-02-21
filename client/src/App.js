@@ -1,19 +1,19 @@
 import React from "react";
 
-import VideoPlayer from "./components/VideoPlayer";
-import Sidebar from "./components/Sidebar";
+import AudioPlayer from "./components/AudioPlayer";
+import Options from "./components/Options";
 import Notifications from "./components/Notifications";
 
 const App = () => {
 	return (
 		<div className="wrapper">
 			<div className="appbar">
-				<h2 variant="h2">Video Chat</h2>
+				<h2 variant="h2">Call Chat</h2>
 			</div>
-			<VideoPlayer />
-			<Sidebar>
+			<AudioPlayer />
+			<Options>
 				<Notifications />
-			</Sidebar>
+			</Options>
 		</div>
 	);
 };

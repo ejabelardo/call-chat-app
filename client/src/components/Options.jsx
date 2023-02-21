@@ -1,7 +1,7 @@
 import React, { useState, useContext } from "react";
 import { SocketContext } from "../SocketContext.js";
 
-const Sidebar = ({ children }) => {
+const Options = ({ children }) => {
 	const {
 		audio,
 		audioRef,
@@ -54,4 +54,4 @@ const Sidebar = ({ children }) => {
 	);
 };
 
-export default Sidebar;
+export default Options;
