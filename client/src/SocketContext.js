@@ -1,6 +1,9 @@
 import React, { createContext, useState, useRef, useEffect } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
+import ringtone from "../src/assets/ringtone01.mp3";
+import calling from "../src/assets/calling01.mp3";
+import busy from "../src/assets/busy01.mp3";
 
 const SocketContext = createContext();
 
@@ -14,10 +17,14 @@ const ContextProvider = ({ children }) => {
 	const [name, setName] = useState("");
 	const [call, setCall] = useState({});
 	const [me, setMe] = useState("");
+	//test
+	const [audio, setAudio] = useState(ringtone);
 
 	const myVideo = useRef();
 	const userVideo = useRef();
 	const connectionRef = useRef();
+	//test
+	const audioRef = useRef();
 
 	useEffect(() => {
 		navigator.mediaDevices
@@ -25,7 +32,7 @@ const ContextProvider = ({ children }) => {
 			.then((currentStream) => {
 				setStream(currentStream);
 
-				myVideo.current.srcObject = currentStream;
+				// myVideo.current.srcObject = currentStream;
 				// console.log(myVideo.current);
 			});
 
@@ -33,6 +40,8 @@ const ContextProvider = ({ children }) => {
 
 		socket.on("callUser", ({ from, name: callerName, signal }) => {
 			setCall({ isReceivingCall: true, from, name: callerName, signal });
+			setAudio(ringtone);
+			audioRef.current.play();
 		});
 	}, []);
 
@@ -40,6 +49,7 @@ const ContextProvider = ({ children }) => {
 		setCallAccepted(true);
 
 		const peer = new Peer({ initiator: false, trickle: false, stream });
+		audioRef.current.pause();
 
 		peer.on("signal", (data) => {
 			socket.emit("answerCall", { signal: data, to: call.from });
@@ -58,6 +68,7 @@ const ContextProvider = ({ children }) => {
 
 	const callUser = (id) => {
 		const peer = new Peer({ initiator: true, trickle: false, stream });
+		setAudio(calling);
 
 		peer.on("signal", (data) => {
 			socket.emit("callUser", {
@@ -66,16 +77,17 @@ const ContextProvider = ({ children }) => {
 				from: me,
 				name,
 			});
+			audioRef.current.play();
 			// console.log('callUser signal');
 		});
 
 		peer.on("stream", (currentStream) => {
 			userVideo.current.srcObject = currentStream;
 			// console.log('callUser stream');
-			// console.log(userVideo.current);
 		});
 
 		socket.on("callAccepted", (signal) => {
+			audioRef.current.pause();
 			setCallAccepted(true);
 
 			// console.log('callAccepted');
@@ -96,6 +108,8 @@ const ContextProvider = ({ children }) => {
 	return (
 		<SocketContext.Provider
 			value={{
+				audio,
+				audioRef,
 				call,
 				callAccepted,
 				myVideo,

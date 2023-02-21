@@ -2,8 +2,17 @@ import React, { useState, useContext } from "react";
 import { SocketContext } from "../SocketContext.js";
 
 const Sidebar = ({ children }) => {
-	const { me, callAccepted, name, setName, callEnded, leaveCall, callUser } =
-		useContext(SocketContext);
+	const {
+		audio,
+		audioRef,
+		me,
+		callAccepted,
+		name,
+		setName,
+		callEnded,
+		leaveCall,
+		callUser,
+	} = useContext(SocketContext);
 	const [idToCall, setIdToCall] = useState("");
 
 	return (
@@ -31,11 +40,14 @@ const Sidebar = ({ children }) => {
 							{callAccepted && !callEnded ? (
 								<div onClick={leaveCall}>Hang Up</div>
 							) : (
-								<div onClick={() => callUser(idToCall)}>Call</div>
+								<button type="button" onClick={() => callUser(idToCall)}>
+									Call
+								</button>
 							)}
 						</div>
 					</div>
 				</form>
+				<audio loop controls src={audio} ref={audioRef}></audio>
 				{children}
 			</div>
 		</div>

@@ -2,8 +2,15 @@ import React, { useContext } from "react";
 import { SocketContext } from "../SocketContext.js";
 
 const VideoPlayer = () => {
-	const { name, callAccepted, myVideo, userVideo, callEnded, stream, call } =
-		useContext(SocketContext);
+	const {
+		name,
+		callAccepted,
+		// myVideo,
+		userVideo,
+		callEnded,
+		stream,
+		call,
+	} = useContext(SocketContext);
 
 	return (
 		<div className="grid">
@@ -13,7 +20,7 @@ const VideoPlayer = () => {
 						<div className="typography">{name || "Name"}</div>
 						{/* <video playsInline muted ref={myVideo} autoPlay/> */}
 						{/* <audio controls autoPlay ref={myVideo}/> */}
-						{console.log(myVideo)}
+						{/* {console.log(myVideo)} */}
 					</div>
 				</div>
 			)}

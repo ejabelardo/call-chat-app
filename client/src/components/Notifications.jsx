@@ -10,7 +10,9 @@ const Notifications = () => {
 			{call.isReceivingCall && !callAccepted && (
 				<div>
 					<h1>{call.name} is calling:</h1>
-					<div onClick={answerCall}>Answer</div>
+					<button type="button" onClick={answerCall}>
+						Answer
+					</button>
 				</div>
 			)}
 		</>
