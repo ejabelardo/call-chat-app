@@ -3,8 +3,8 @@ import { SocketContext } from "../SocketContext.js";
 
 const Options = ({ children }) => {
 	const {
-		audio,
-		audioRef,
+		tone,
+		toneRef,
 		me,
 		callAccepted,
 		name,
@@ -38,7 +38,9 @@ const Options = ({ children }) => {
 								onChange={(e) => setIdToCall(e.target.value)}
 							/>
 							{callAccepted && !callEnded ? (
-								<div onClick={leaveCall}>Hang Up</div>
+								<button type="button" onClick={leaveCall}>
+									Hang Up
+								</button>
 							) : (
 								<button type="button" onClick={() => callUser(idToCall)}>
 									Call
@@ -47,7 +49,7 @@ const Options = ({ children }) => {
 						</div>
 					</div>
 				</form>
-				<audio loop controls src={audio} ref={audioRef}></audio>
+				<audio loop controls src={tone} ref={toneRef}></audio>
 				{children}
 			</div>
 		</div>

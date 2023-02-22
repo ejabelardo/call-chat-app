@@ -7,7 +7,7 @@ import busy from "../src/assets/busy01.mp3";
 
 const SocketContext = createContext();
 
-const socket = io("http://localhost:5000");
+const socket = io("http://server.cs-coms.com");
 
 const ContextProvider = ({ children }) => {
 	const [callAccepted, setCallAccepted] = useState(false);
@@ -17,13 +17,13 @@ const ContextProvider = ({ children }) => {
 	const [call, setCall] = useState({});
 	const [me, setMe] = useState("");
 	//test
-	const [audio, setAudio] = useState(ringtone);
+	const [tone, setTone] = useState(ringtone);
 
 	const myAudio = useRef();
 	const userAudio = useRef();
 	const connectionRef = useRef();
 
-	const audioRef = useRef();
+	const toneRef = useRef();
 
 	useEffect(() => {
 		navigator.mediaDevices
@@ -32,6 +32,7 @@ const ContextProvider = ({ children }) => {
 				setStream(currentStream);
 
 				// myAudio.current.srcObject = currentStream;
+				// myAudio.current.muted = true;
 			});
 
 		socket.on("me", (id) => setMe(id));
@@ -39,8 +40,8 @@ const ContextProvider = ({ children }) => {
 		socket.on("callUser", ({ from, name: callerName, signal }) => {
 			setCall({ isReceivingCall: true, from, name: callerName, signal });
 
-			setAudio(ringtone);
-			audioRef.current.play();
+			setTone(ringtone);
+			toneRef.current.play();
 		});
 	}, [callEnded]);
 
@@ -50,7 +51,7 @@ const ContextProvider = ({ children }) => {
 
 		const peer = new Peer({ initiator: false, trickle: false, stream });
 
-		audioRef.current.pause();
+		toneRef.current.pause();
 
 		peer.on("signal", (data) => {
 			socket.emit("answerCall", { signal: data, to: call.from });
@@ -67,7 +68,8 @@ const ContextProvider = ({ children }) => {
 
 	const callUser = (id) => {
 		const peer = new Peer({ initiator: true, trickle: false, stream });
-		setAudio(calling);
+
+		setTone(calling);
 
 		peer.on("signal", (data) => {
 			socket.emit("callUser", {
@@ -77,7 +79,7 @@ const ContextProvider = ({ children }) => {
 				name,
 			});
 
-			audioRef.current.play();
+			toneRef.current.play();
 		});
 
 		peer.on("stream", (currentStream) => {
@@ -85,7 +87,7 @@ const ContextProvider = ({ children }) => {
 		});
 
 		socket.on("callAccepted", (signal) => {
-			audioRef.current.pause();
+			toneRef.current.pause();
 			setCallAccepted(true);
 
 			peer.signal(signal);
@@ -95,17 +97,17 @@ const ContextProvider = ({ children }) => {
 	};
 
 	const leaveCall = () => {
-		// setCallEnded(true);
-		setAudio(busy);
-		audioRef.current.play();
+		// setTone(busy);
+		// toneRef.current.play();
+
+		// socket.emit("disconnect");
+		socket.disconnect();
 
 		socket.on("callEnded", () => {
-			console.log("call ended...");
+			console.log("The person you are calling disconnected");
 		});
-
 		connectionRef.current = null;
 
-		socket.disconnect();
 		// window.location.reload();
 		setStream(null);
 		setMe("");
@@ -117,8 +119,8 @@ const ContextProvider = ({ children }) => {
 	return (
 		<SocketContext.Provider
 			value={{
-				audio,
-				audioRef,
+				tone,
+				toneRef,
 				call,
 				callAccepted,
 				myAudio,
