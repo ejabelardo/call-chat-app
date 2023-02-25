@@ -1,12 +1,56 @@
 body {
-	background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
+	/* background: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.3)),
 		url(https://i.pinimg.com/originals/8f/14/57/8f14578ef69a4c53352955d1e072eda6.png);
 	background-repeat: no-repeat;
 	background-attachment: fixed;
-	background-size: cover;
+	background-size: cover; */
+	background-color: #202020;
+	color: aliceblue;
 }
 
 * {
 	margin: 0;
 	padding: 0;
+}
+
+audio {
+	display: none;
+}
+
+.callDiv {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	position: absolute;
+	overflow: hidden;
+	top: 0;
+	left: 0;
+	right: 0;
+	bottom: 0;
+}
+
+button {
+	width: 10em;
+	height: 10em;
+	border-radius: 50%;
+	background: none;
+	border: 0.5em solid green;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	cursor: pointer;
+}
+button > img {
+	width: 50%;
+}
+.calling {
+	background: green;
+}
+h1 {
+	position: absolute;
+	bottom: 30%;
+}
+.hangup {
+	background: #fff !important;
+	border: 0.5em solid white !important;
 }

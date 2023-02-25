@@ -14,20 +14,34 @@ app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
-app.get("/", (req, res) => {
+let userId;
+
+app.get("/:userId", (req, res) => {
 	res.send("Running...");
+	userId = req.params.userId;
 });
 
 io.on("connection", (socket) => {
 	socket.emit("me", socket.id);
+
+	socket.broadcast.emit("adminOnly", socket.id); //test
+
 	socket.on("disconnect", () => {
 		socket.broadcast.emit("callEnded");
 	});
 	socket.on("callUser", ({ userToCall, signalData, from, name }) => {
-		io.to(userToCall).emit("callUser", { signal: signalData, from, name });
+		io.to(userToCall).emit("callUser", {
+			signal: signalData,
+			from,
+			name,
+			userId,
+		});
 	});
 	socket.on("answerCall", (data) => {
 		io.to(data.to).emit("callAccepted", data.signal);
+	});
+	socket.on("hangupCall", (data) => {
+		io.to(data.to).emit("callHangup", data.signal);
 	});
 });
 

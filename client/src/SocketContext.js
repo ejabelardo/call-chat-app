@@ -1,13 +1,19 @@
 import React, { createContext, useState, useRef, useEffect } from "react";
 import { io } from "socket.io-client";
 import Peer from "simple-peer";
-import ringtone from "../src/assets/ringtone01.mp3";
-import calling from "../src/assets/calling01.mp3";
-import busy from "../src/assets/busy01.mp3";
+
+import ringTone from "../src/assets/ringtone01.mp3";
+import callTone from "../src/assets/calling01.mp3";
+// import busy from "../src/assets/busy01.mp3";
+
+import { useParams } from "react-router-dom";
+
+// import ListUsers from "./components/ListUsers";
 
 const SocketContext = createContext();
 
-const socket = io("http://server.cs-coms.com");
+const socket = io("http://localhost:5000");
+// const socket = io("http://server.cs-coms.com");
 
 const ContextProvider = ({ children }) => {
 	const [callAccepted, setCallAccepted] = useState(false);
@@ -17,13 +23,23 @@ const ContextProvider = ({ children }) => {
 	const [call, setCall] = useState({});
 	const [me, setMe] = useState("");
 	//test
-	const [tone, setTone] = useState(ringtone);
+	const [tone, setTone] = useState(ringTone);
 
 	const myAudio = useRef();
 	const userAudio = useRef();
 	const connectionRef = useRef();
 
 	const toneRef = useRef();
+	// const [usersList, setUsersList] = useState();
+	const [newUsers, setNewUsers] = useState("");
+	const [calling, setCalling] = useState(false);
+
+	// function updateUsersList(newUsersList) {
+	// 	// console.log(newUsers);
+	// 	setNewUsers([...newUsersList, ]);
+	// }
+
+	const { userId } = useParams();
 
 	useEffect(() => {
 		navigator.mediaDevices
@@ -38,12 +54,26 @@ const ContextProvider = ({ children }) => {
 		socket.on("me", (id) => setMe(id));
 
 		socket.on("callUser", ({ from, name: callerName, signal }) => {
-			setCall({ isReceivingCall: true, from, name: callerName, signal });
+			setCall({
+				isReceivingCall: true,
+				from,
+				name: callerName,
+				signal,
+			});
 
-			setTone(ringtone);
+			setTone(ringTone);
 			toneRef.current.play();
 		});
-	}, [callEnded]);
+		// if (userId === "admin") {
+		socket.on("adminOnly", (users) => {
+			// console.log(users);
+			setNewUsers(users);
+			// updateUsersList({ sid: users, uname: userId });
+
+			// socket.broadcast.emit("userToAdmin", { roomID });
+		});
+		// }
+	}, []);
 
 	const answerCall = () => {
 		setCallAccepted(true);
@@ -66,17 +96,18 @@ const ContextProvider = ({ children }) => {
 		connectionRef.current = peer;
 	};
 
-	const callUser = (id) => {
+	const callUser = (id, userId) => {
 		const peer = new Peer({ initiator: true, trickle: false, stream });
 
-		setTone(calling);
+		setCalling(true);
+		setTone(callTone);
 
 		peer.on("signal", (data) => {
 			socket.emit("callUser", {
 				userToCall: id,
 				signalData: data,
 				from: me,
-				name,
+				name: userId,
 			});
 
 			toneRef.current.play();
@@ -100,28 +131,31 @@ const ContextProvider = ({ children }) => {
 		// setTone(busy);
 		// toneRef.current.play();
 
-		// socket.emit("disconnect");
-		socket.disconnect();
-
-		socket.on("callEnded", () => {
-			console.log("The person you are calling disconnected");
-		});
-		connectionRef.current = null;
-
-		// window.location.reload();
-		setStream(null);
-		setMe("");
-		setCall("");
-		setCallAccepted(false);
+		// socket.emit("disconnect", { me });
+		socket.disconnect(me);
 		setCallEnded(true);
+
+		// socket.on("callEnded", () => {
+		// 	console.log("The person you are calling disconnected");
+		// });
+		// connectionRef.current = null;
+		connectionRef.current.destroy();
+
+		window.location.reload();
+		// setStream(null);
+		// setMe("");
+		// setCall("");
+		// setCallAccepted(false);
 	};
 
 	return (
 		<SocketContext.Provider
 			value={{
+				newUsers,
 				tone,
 				toneRef,
 				call,
+				calling,
 				callAccepted,
 				myAudio,
 				userAudio,
