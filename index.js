@@ -14,11 +14,11 @@ app.use(cors());
 
 const PORT = process.env.PORT || 5000;
 
-let userId;
+// let userId;
 
-app.get("/:userId", (req, res) => {
+app.get("/", (req, res) => {
 	res.send("Running...");
-	userId = req.params.userId;
+	// userId = req.params.userId;
 });
 
 io.on("connection", (socket) => {
@@ -34,7 +34,7 @@ io.on("connection", (socket) => {
 			signal: signalData,
 			from,
 			name,
-			userId,
+			// userId,
 		});
 	});
 	socket.on("answerCall", (data) => {
