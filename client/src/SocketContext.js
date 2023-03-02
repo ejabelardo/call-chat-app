@@ -6,14 +6,14 @@ import ringTone from "../src/assets/ringtone01.mp3";
 import callTone from "../src/assets/calling01.mp3";
 // import busy from "../src/assets/busy01.mp3";
 
-import { useParams } from "react-router-dom";
+// import { useParams } from "react-router-dom";
 
 // import ListUsers from "./components/ListUsers";
 
 const SocketContext = createContext();
 
-const socket = io("http://localhost:5000");
-// const socket = io("http://server.cs-coms.com");
+// const socket = io("http://localhost:5000");
+const socket = io("https://server.cs-coms.com");
 
 const ContextProvider = ({ children }) => {
 	const [callAccepted, setCallAccepted] = useState(false);
@@ -39,7 +39,7 @@ const ContextProvider = ({ children }) => {
 	// 	setNewUsers([...newUsersList, ]);
 	// }
 
-	const { userId } = useParams();
+	// const { userId } = useParams();
 
 	useEffect(() => {
 		navigator.mediaDevices
